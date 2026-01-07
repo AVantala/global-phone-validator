@@ -1,0 +1,50 @@
+{
+  "name": "global-phone-validator",
+  "version": "1.0.0",
+  "description": "A reusable Node.js + TypeScript package for validating phone numbers worldwide. Supports any country using CountryCodes JSON, handles international formats (+CC), 0-prefixed, and plain digits. Includes mobile/landline detection for India and returns standardized E.164 format.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "ts-node test/validator.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "phone",
+    "validator",
+    "validation",
+    "mobile",
+    "landline",
+    "international",
+    "E164",
+    "E.164",
+    "country-code",
+    "india",
+    "worldwide",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AVantala/global-phone-validator.git"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.0",
+    "ts-node": "^10.9.1"
+  }
+}
