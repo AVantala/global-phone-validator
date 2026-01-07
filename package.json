@@ -1,6 +1,6 @@
 {
   "name": "global-phone-validator",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A reusable Node.js + TypeScript package for validating phone numbers worldwide. Supports any country using CountryCodes JSON, handles international formats (+CC), 0-prefixed, and plain digits. Includes mobile/landline detection for India and returns standardized E.164 format.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
