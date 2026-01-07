@@ -1,17 +1,17 @@
 # global-phone-validator
 
-A comprehensive Node.js + TypeScript package for validating **mobile phone numbers** worldwide. Supports **all countries** with **country-specific validation rules** and **mobile prefix detection** for 50+ major countries. Handles international formats (+CC), 0-prefixed, and plain digits. Returns standardized E.164 format.
+A comprehensive Node.js + TypeScript package for validating **all types of phone numbers** worldwide. Supports **all countries** with **country-specific validation rules** and **phone number type detection** (mobile, landline, VoIP, toll-free, premium, special services) for 30+ major countries. Handles international formats (+CC), 0-prefixed, and plain digits. Returns standardized E.164 format.
 
 ## Features
 
-- ✅ **True Global Validation**: Validates mobile phone numbers for **all countries** with country-specific rules for 50+ major countries
-- ✅ **Country-Specific Rules**: Accurate validation for US, UK, Germany, France, Australia, Brazil, China, Japan, India, and 40+ more countries
-- ✅ **Mobile Prefix Detection**: Detects mobile numbers using country-specific prefix rules for **70+ countries**
-- ✅ **Multiple Formats**: Handles international format (+CC), 0-prefixed, and plain digit formats
-- ✅ **Standardized Output**: Returns E.164 format (+CCNNNNNNNNN) with country information
-- ✅ **TypeScript**: Fully typed with TypeScript definitions
-- ✅ **Zero Dependencies**: No external dependencies required
-- ✅ **ITU-T E.164 Compliant**: Follows international telecommunication standards
+- ✅ Global validation for all countries
+- ✅ Phone type detection (mobile, landline, VoIP, toll-free, premium)
+- ✅ 50+ countries with specific validation rules
+- ✅ 70+ countries with mobile prefix detection
+- ✅ Multiple input formats (+CC, 0-prefixed, plain digits)
+- ✅ E.164 format output
+- ✅ Full TypeScript support
+- ✅ Zero dependencies
 
 ## Installation
 
@@ -108,18 +108,20 @@ console.log(result4);
 // }
 ```
 
+### Phone Type Detection
+
+```typescript
+validatePhoneNumber("+919876543210").phoneType; // 'mobile'
+validatePhoneNumber("+442079460958").phoneType; // 'landline'
+validatePhoneNumber("+18001234567").phoneType; // 'toll-free'
+validatePhoneNumber("+19001234567").phoneType; // 'premium'
+```
+
 ### Mobile-Only Validation
 
 ```typescript
-// Only accept mobile numbers (works for all countries with mobile prefix rules)
-const result = validatePhoneNumber("9876543210", "IN", true);
-console.log(result.isValid); // true (mobile number)
-
-const result2 = validatePhoneNumber("17677274194", "DE", true);
-console.log(result2.isValid); // true (German mobile number)
-
-const result3 = validatePhoneNumber("7123456789", "GB", true);
-console.log(result3.isValid); // true (UK mobile number)
+validatePhoneNumber("9876543210", "IN", true); // true (mobile)
+validatePhoneNumber("0123456789", "IN", true); // false (landline)
 ```
 
 ### Get Country Codes
@@ -296,6 +298,7 @@ The package includes **comprehensive validation rules** for **50+ major countrie
 The package includes **mobile prefix detection** for **70+ countries**, allowing automatic identification of mobile numbers:
 
 **Countries with Mobile Prefix Detection:**
+
 - **Europe**: Germany, UK, France, Italy, Spain, Netherlands, Sweden, Norway, Poland, Russia, Austria, Belgium, Switzerland, Portugal, Greece, Ireland, Czech Republic, Denmark, Finland, Hungary, Iceland, Romania, Slovakia, Slovenia, Ukraine, and more
 - **Asia-Pacific**: India, China, Japan, South Korea, Australia, Indonesia, Philippines, Thailand, Malaysia, Singapore, New Zealand, Vietnam, Pakistan, Bangladesh, Sri Lanka, Myanmar, Iran, Israel, Hong Kong, Taiwan, and more
 - **Americas**: Argentina, Chile, Colombia, Peru, Venezuela, Uruguay, and more
@@ -314,55 +317,13 @@ The package includes **mobile prefix detection** for **70+ countries**, allowing
 ```typescript
 import { validatePhoneNumber } from "global-phone-validator";
 
-// Valid Indian mobile number
-validatePhoneNumber("+91 98765 43210");
-// { isValid: true, isMobile: true, e164: '+919876543210', ... }
-
-// Valid German mobile number
-validatePhoneNumber("+49 17677274194");
-// { isValid: true, isMobile: true, e164: '+4917677274194', country: 'DE', ... }
-
-// Invalid number
-validatePhoneNumber("12345");
-// { isValid: false }
-
-// US number
-validatePhoneNumber("+1 555 123 4567");
-// { isValid: true, country: 'US', e164: '+15551234567', ... }
-
-// UK mobile number
-validatePhoneNumber("+44 7123 456789");
-// { isValid: true, country: 'GB', isMobile: true, e164: '+447123456789', ... }
-
-// Germany mobile number
-validatePhoneNumber("+49 17677274194");
-// { isValid: true, country: 'DE', isMobile: true, e164: '+4917677274194', ... }
-
-// France number
-validatePhoneNumber("+33 1 23 45 67 89");
-// { isValid: true, country: 'FR', e164: '+33123456789', ... }
-
-// Australia number
-validatePhoneNumber("+61 2 1234 5678");
-// { isValid: true, country: 'AU', e164: '+61212345678', ... }
-
-// Brazil number
-validatePhoneNumber("+55 11 98765 4321");
-// { isValid: true, country: 'BR', e164: '+5511987654321', ... }
-
-// China number
-validatePhoneNumber("+86 138 0013 8000");
-// { isValid: true, country: 'CN', e164: '+8613800138000', ... }
-
-// Japan number
-validatePhoneNumber("+81 3 1234 5678");
-// { isValid: true, country: 'JP', e164: '+81312345678', ... }
-
-// Germany number with different spacing (all formats work)
-validatePhoneNumber("+49 17677274194"); // With space after country code
-validatePhoneNumber("+49 176 77274194"); // With spaces in number
-validatePhoneNumber("+4917677274194"); // No spaces
-// All produce: { isValid: true, country: 'DE', nationalNumber: '17677274194', e164: '+4917677274194', ... }
+validatePhoneNumber("+91 98765 43210"); // India mobile
+validatePhoneNumber("+1 555 123 4567"); // US
+validatePhoneNumber("+44 7123 456789"); // UK mobile
+validatePhoneNumber("+49 17677274194"); // Germany mobile
+validatePhoneNumber("+18001234567"); // US toll-free
+validatePhoneNumber("+19001234567"); // US premium
+validatePhoneNumber("12345"); // Invalid
 ```
 
 ## Why Use This Package?
@@ -387,17 +348,113 @@ npm run build
 npm test
 ```
 
+## Data Structure
+
+The package uses a **generalized, unified data structure** that makes it easy to extend and maintain:
+
+### Country Data Structure
+
+All country information is consolidated into a single `CountryData` interface:
+
+```typescript
+interface CountryData {
+  name: string; // Country name
+  dial_code: string; // Dial code with + (e.g., "+91")
+  code: string; // ISO country code (e.g., "IN")
+
+  validation?: {
+    // Optional validation rules
+    pattern?: RegExp | string;
+    minLength?: number;
+    maxLength?: number;
+  };
+
+  phoneTypes?: {
+    // Phone type detection rules
+    mobilePrefixes?: string[];
+    landlinePrefixes?: string[];
+    voipPrefixes?: string[];
+    tollFreePrefixes?: string[];
+    premiumPrefixes?: string[];
+    specialPrefixes?: string[];
+  };
+
+  metadata?: {
+    // Optional metadata
+    notes?: string;
+    areaCodeDependent?: boolean;
+    lastUpdated?: string;
+  };
+}
+```
+
+### Data Sources
+
+1. **CountryCodes.json**: Basic country information (name, dial_code, code)
+2. **phoneTypes.ts**: Phone type detection rules (mobile, landline, VoIP, etc.)
+3. **countryData.ts**: Unified structure that merges both sources
+
+### Extending the Data
+
+You can easily add or update country data:
+
+```typescript
+import { addCountryData } from "global-phone-validator/dataAccess";
+
+// Add new country with phone type rules
+addCountryData("123", {
+  name: "New Country",
+  dial_code: "+123",
+  code: "NC",
+  validation: {
+    pattern: "^\\d{10}$",
+    minLength: 10,
+    maxLength: 10,
+  },
+  phoneTypes: {
+    mobilePrefixes: ["9"],
+    landlinePrefixes: ["1", "2", "3"],
+    tollFreePrefixes: ["800"],
+  },
+});
+```
+
+### Data Access API
+
+```typescript
+import {
+  getCountryData,
+  getPhoneTypeRules,
+  getValidationRules,
+  getCountriesWithPhoneTypeSupport,
+  hasPhoneTypeSupport,
+} from "global-phone-validator/dataAccess";
+
+// Get complete country data
+const india = getCountryData("91");
+
+// Get phone type rules only
+const rules = getPhoneTypeRules("91");
+
+// Get validation rules only
+const validation = getValidationRules("91");
+
+// Get all countries with phone type support
+const countries = getCountriesWithPhoneTypeSupport();
+
+// Check if country supports specific phone type
+const hasMobile = hasPhoneTypeSupport("91", "mobile");
+```
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Adding Country Validation Rules
-
-If you'd like to add or improve validation rules for specific countries, please:
+### Contributing
 
 1. Fork the repository
-2. Add the validation rule to the `validationRules` object in `src/index.ts`
-3. Update the README with the country information
+2. Add validation rules to `src/index.ts`
+3. Add phone type rules to `src/phoneTypes.ts`
 4. Submit a Pull Request
 
 ## License
@@ -406,10 +463,6 @@ MIT
 
 ## Links
 
-- **NPM Package**: [global-phone-validator](https://www.npmjs.com/package/global-phone-validator)
-- **GitHub Repository**: [AVantala/global-phone-validator](https://github.com/AVantala/global-phone-validator)
-- **Issues**: [Report a bug or request a feature](https://github.com/AVantala/global-phone-validator/issues)
-
-## License
-
-MIT
+- [NPM Package](https://www.npmjs.com/package/global-phone-validator)
+- [GitHub Repository](https://github.com/AVantala/global-phone-validator)
+- [Report Issues](https://github.com/AVantala/global-phone-validator/issues)
