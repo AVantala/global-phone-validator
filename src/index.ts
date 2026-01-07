@@ -123,7 +123,7 @@ export function validatePhoneNumber(
     "46": { pattern: /^\d{9}$/, minLength: 9, maxLength: 9 }, // Sweden
     "47": { pattern: /^\d{8}$/, minLength: 8, maxLength: 8 }, // Norway
     "48": { pattern: /^\d{9}$/, minLength: 9, maxLength: 9 }, // Poland
-    "49": { pattern: /^\d{10,11}$/, minLength: 10, maxLength: 11 }, // Germany
+    "49": { pattern: /^\d{10,11}$/, minLength: 10, maxLength: 11 }, // Germany (mobile: 10-11 digits after removing 0 or in international format)
     "51": { pattern: /^\d{9}$/, minLength: 9, maxLength: 9 }, // Peru
     "52": { pattern: /^\d{10}$/, minLength: 10, maxLength: 10 }, // Mexico
     "53": { pattern: /^\d{8}$/, minLength: 8, maxLength: 8 }, // Cuba

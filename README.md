@@ -6,7 +6,7 @@ A comprehensive Node.js + TypeScript package for validating **mobile phone numbe
 
 - ✅ **True Global Validation**: Validates mobile phone numbers for **all countries** with country-specific rules for 50+ major countries
 - ✅ **Country-Specific Rules**: Accurate validation for US, UK, Germany, France, Australia, Brazil, China, Japan, India, and 40+ more countries
-- ✅ **Mobile Prefix Detection**: Detects mobile numbers using country-specific prefix rules for 30+ countries
+- ✅ **Mobile Prefix Detection**: Detects mobile numbers using country-specific prefix rules for **70+ countries**
 - ✅ **Multiple Formats**: Handles international format (+CC), 0-prefixed, and plain digit formats
 - ✅ **Standardized Output**: Returns E.164 format (+CCNNNNNNNNN) with country information
 - ✅ **TypeScript**: Fully typed with TypeScript definitions
@@ -290,6 +290,18 @@ The package includes **comprehensive validation rules** for **50+ major countrie
 - **Morocco (212)**: 9 digits
 - **Qatar (974)**: 8 digits
 - **And more...**
+
+### Mobile Prefix Detection
+
+The package includes **mobile prefix detection** for **70+ countries**, allowing automatic identification of mobile numbers:
+
+**Countries with Mobile Prefix Detection:**
+- **Europe**: Germany, UK, France, Italy, Spain, Netherlands, Sweden, Norway, Poland, Russia, Austria, Belgium, Switzerland, Portugal, Greece, Ireland, Czech Republic, Denmark, Finland, Hungary, Iceland, Romania, Slovakia, Slovenia, Ukraine, and more
+- **Asia-Pacific**: India, China, Japan, South Korea, Australia, Indonesia, Philippines, Thailand, Malaysia, Singapore, New Zealand, Vietnam, Pakistan, Bangladesh, Sri Lanka, Myanmar, Iran, Israel, Hong Kong, Taiwan, and more
+- **Americas**: Argentina, Chile, Colombia, Peru, Venezuela, Uruguay, and more
+- **Africa & Middle East**: South Africa, Nigeria, UAE, Egypt, Morocco, Qatar, Kenya, and more
+
+**Note:** Some countries (like Mexico, Brazil) have area-code-dependent mobile prefixes that require area code information for accurate detection. For these countries, format validation is performed but mobile detection may be limited.
 
 ### Other Countries
 
