@@ -158,16 +158,33 @@ The package handles phone numbers in the following formats:
 
 ## Country-Specific Validation
 
-### India (91)
-- Mobile numbers: Must start with 6, 7, 8, or 9 and be exactly 10 digits
-- Landline numbers: Start with 0-5 and be exactly 10 digits
-- Mobile/landline detection is automatically performed
+The package includes validation rules for **50+ major countries** with specific length and format requirements:
 
-### United States/Canada (1)
-- Must be exactly 10 digits (without country code)
+### Countries with Specific Validation Rules
+
+- **India (91)**: 10 digits (mobile: 6-9, landline: 0-5) - Mobile/landline detection
+- **United States/Canada (1)**: 10 digits
+- **United Kingdom (44)**: 10-11 digits
+- **Germany (49)**: 10-11 digits
+- **France (33)**: 9 digits
+- **Australia (61)**: 9 digits
+- **Brazil (55)**: 10-11 digits
+- **China (86)**: 11 digits
+- **Japan (81)**: 10-11 digits
+- **South Korea (82)**: 9-10 digits
+- **Russia (7)**: 10 digits
+- **Spain (34)**: 9 digits
+- **Italy (39)**: 9-10 digits
+- **Netherlands (31)**: 9 digits
+- **Sweden (46)**: 9 digits
+- **Norway (47)**: 8 digits
+- **Poland (48)**: 9 digits
+- **Turkey (90)**: 10 digits
+- **Pakistan (92)**: 10 digits
+- **And 30+ more countries...**
 
 ### Other Countries
-- General validation: 4-15 digits
+- General validation: 4-15 digits (ITU-T E.164 standard)
 
 ## Examples
 
