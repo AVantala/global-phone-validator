@@ -27,16 +27,33 @@ Test the package directly in your browser with RunKit:
 
 **[▶️ Try on RunKit](https://npm.runkit.com/global-phone-validator)**
 
-Or use this code snippet:
+> **Note:** If you get a 503 error, RunKit may be temporarily unavailable or the latest version may still be indexing. Try again in a few minutes, or test locally using the code below.
+
+### Quick Test Code
+
+You can paste this code in RunKit or run it locally:
 
 ```javascript
 const { validatePhoneNumber } = require("global-phone-validator");
 
 // Test various countries
-validatePhoneNumber("+91 98765 43210"); // India
-validatePhoneNumber("+1 555 123 4567"); // USA
-validatePhoneNumber("+44 20 7946 0958"); // UK
-validatePhoneNumber("+49 30 12345678"); // Germany
+console.log(validatePhoneNumber("+91 98765 43210")); // India - Mobile
+console.log(validatePhoneNumber("+1 555 123 4567")); // USA
+console.log(validatePhoneNumber("+44 20 7946 0958")); // UK
+console.log(validatePhoneNumber("+49 176 77274194")); // Germany - Mobile
+console.log(validatePhoneNumber("+49 30 12345678")); // Germany - Landline
+console.log(validatePhoneNumber("+61 2 1234 5678")); // Australia
+console.log(validatePhoneNumber("+86 138 0013 8000")); // China
+```
+
+### Test Locally
+
+```bash
+# Install the package
+npm install global-phone-validator
+
+# Create a test file
+node -e "const {validatePhoneNumber} = require('global-phone-validator'); console.log(validatePhoneNumber('+91 98765 43210'));"
 ```
 
 ## Usage
@@ -67,6 +84,18 @@ console.log(result2.isValid); // true
 // Plain digits with default country
 const result3 = validatePhoneNumber("9876543210", "IN");
 console.log(result3.isValid); // true
+
+// Auto-detection from country code (no defaultCountry needed)
+const result3a = validatePhoneNumber("+4917677274194");
+console.log(result3a.isValid); // true - Auto-detects Germany from +49
+console.log(result3a.country); // "DE" (Germany)
+
+// Country matching validation (strict mode with defaultCountry)
+const result3b = validatePhoneNumber("+4917677274194", "IN");
+console.log(result3b.isValid); // false - Germany number doesn't match IN
+
+const result3c = validatePhoneNumber("+4917677274194", "DE");
+console.log(result3c.isValid); // true - Germany number matches DE
 
 // US number
 const result4 = validatePhoneNumber("+1 555 123 4567");
@@ -123,7 +152,12 @@ Validates a phone number and returns detailed information.
 **Parameters:**
 
 - `input` (string): Phone number in various formats
-- `defaultCountry` (string, optional): ISO country code (e.g., "IN", "US") used when country cannot be detected. Default: "IN"
+- `defaultCountry` (string, optional): ISO country code (e.g., "IN", "US").
+  - **When number has `+` prefix**:
+    - Country is **auto-detected** from the dial code (e.g., `+49` → Germany, `+91` → India)
+    - If `defaultCountry` is provided: Validates that detected country **matches** `defaultCountry` (strict mode)
+    - If `defaultCountry` is **not provided**: Validates based on the **detected country** from the dial code
+  - **When number doesn't have `+` prefix**: `defaultCountry` is **REQUIRED** - no default country is assumed
 - `mobileOnly` (boolean, optional): If true, only accepts mobile numbers (currently only for India). Default: false
 
 **Returns:** `PhoneValidationResult`
@@ -180,8 +214,12 @@ Gets country information by dial code.
 The package handles phone numbers in the following formats:
 
 1. **International format**: `+91 98765 43210` or `+919876543210`
-2. **0-prefixed**: `09876543210` (uses defaultCountry parameter)
-3. **Plain digits**: `9876543210` (uses defaultCountry parameter)
+   - Country is auto-detected from the dial code
+   - `defaultCountry` parameter is optional (used for strict matching)
+2. **0-prefixed**: `09876543210`
+   - **Requires** `defaultCountry` parameter (e.g., `validatePhoneNumber("09876543210", "IN")`)
+3. **Plain digits**: `9876543210`
+   - **Requires** `defaultCountry` parameter (e.g., `validatePhoneNumber("9876543210", "IN")`)
 
 ## Country-Specific Validation
 
@@ -284,7 +322,11 @@ validatePhoneNumber("+1 555 123 4567");
 validatePhoneNumber("+44 20 7946 0958");
 // { isValid: true, country: 'GB', e164: '+442079460958', ... }
 
-// Germany number
+// Germany number (mobile)
+validatePhoneNumber("+49 17677274194");
+// { isValid: true, country: 'DE', e164: '+4917677274194', ... }
+
+// Germany number (landline)
 validatePhoneNumber("+49 30 12345678");
 // { isValid: true, country: 'DE', e164: '+493012345678', ... }
 
@@ -307,6 +349,12 @@ validatePhoneNumber("+86 138 0013 8000");
 // Japan number
 validatePhoneNumber("+81 3 1234 5678");
 // { isValid: true, country: 'JP', e164: '+81312345678', ... }
+
+// Germany number with different spacing (all formats work)
+validatePhoneNumber("+49 17677274194"); // With space after country code
+validatePhoneNumber("+49 176 77274194"); // With spaces in number
+validatePhoneNumber("+4917677274194"); // No spaces
+// All produce: { isValid: true, country: 'DE', nationalNumber: '17677274194', e164: '+4917677274194', ... }
 ```
 
 ## Why Use This Package?

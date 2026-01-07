@@ -11,12 +11,12 @@ const COUNTRY_CODES = countryCodes as CountryCode[];
 
 /**
  * Validates phone numbers for any country
- * 
+ *
  * @param input - Phone number in various formats (+91..., 0..., or plain digits)
  * @param defaultCountry - ISO country code (e.g., "IN", "US") used when country cannot be detected
  * @param mobileOnly - If true, only accepts mobile numbers (currently only for India)
  * @returns PhoneValidationResult with validation status and parsed information
- * 
+ *
  * @example
  * validatePhoneNumber("+91 98765 43210") // India with country code
  * validatePhoneNumber("09876543210") // India with 0 prefix
@@ -25,7 +25,7 @@ const COUNTRY_CODES = countryCodes as CountryCode[];
  */
 export function validatePhoneNumber(
   input: string,
-  defaultCountry: string = "IN",
+  defaultCountry?: string,
   mobileOnly: boolean = false
 ): PhoneValidationResult {
   if (!input || typeof input !== "string") {
@@ -33,7 +33,7 @@ export function validatePhoneNumber(
   }
 
   const cleaned = cleanPhoneNumber(input);
-  
+
   if (cleaned.length < 7) {
     return { isValid: false };
   }
@@ -49,33 +49,49 @@ export function validatePhoneNumber(
       detectedCountry = detection.country;
       countryCode = detection.dialCode;
       nationalNumber = detection.nationalNumber;
+
+      // If defaultCountry is provided, validate that detected country matches
+      if (defaultCountry) {
+        const expectedDialCode = getCountryDialCode(defaultCountry);
+        if (expectedDialCode && countryCode !== expectedDialCode) {
+          return { isValid: false };
+        }
+      }
     } else {
       return { isValid: false };
     }
   }
   // Handle 0-prefixed numbers (common in many countries)
   else if (cleaned.startsWith("0")) {
+    if (!defaultCountry) {
+      return { isValid: false }; // Require defaultCountry for 0-prefixed numbers
+    }
     const defaultDialCode = getCountryDialCode(defaultCountry);
     if (!defaultDialCode) {
       return { isValid: false };
     }
     countryCode = defaultDialCode;
     nationalNumber = cleaned.substring(1);
-    detectedCountry = COUNTRY_CODES.find(
-      (c) => c.code.toUpperCase() === defaultCountry.toUpperCase()
-    ) || null;
+    detectedCountry =
+      COUNTRY_CODES.find(
+        (c) => c.code.toUpperCase() === defaultCountry.toUpperCase()
+      ) || null;
   }
-  // Handle plain digits (assume default country)
+  // Handle plain digits (require defaultCountry)
   else {
+    if (!defaultCountry) {
+      return { isValid: false }; // Require defaultCountry for plain digits
+    }
     const defaultDialCode = getCountryDialCode(defaultCountry);
     if (!defaultDialCode) {
       return { isValid: false };
     }
     countryCode = defaultDialCode;
     nationalNumber = cleaned;
-    detectedCountry = COUNTRY_CODES.find(
-      (c) => c.code.toUpperCase() === defaultCountry.toUpperCase()
-    ) || null;
+    detectedCountry =
+      COUNTRY_CODES.find(
+        (c) => c.code.toUpperCase() === defaultCountry.toUpperCase()
+      ) || null;
   }
 
   // Validate national number length (general rule: 4-15 digits)
@@ -84,7 +100,10 @@ export function validatePhoneNumber(
   }
 
   // Country-specific validation rules
-  const validationRules: Record<string, { pattern: RegExp; minLength: number; maxLength: number }> = {
+  const validationRules: Record<
+    string,
+    { pattern: RegExp; minLength: number; maxLength: number }
+  > = {
     "1": { pattern: /^\d{10}$/, minLength: 10, maxLength: 10 }, // US/Canada
     "7": { pattern: /^\d{10}$/, minLength: 10, maxLength: 10 }, // Russia/Kazakhstan
     "20": { pattern: /^\d{8,10}$/, minLength: 8, maxLength: 10 }, // Egypt
@@ -153,7 +172,10 @@ export function validatePhoneNumber(
   const rule = validationRules[countryCode];
   if (rule) {
     // Use country-specific validation
-    if (nationalNumber.length < rule.minLength || nationalNumber.length > rule.maxLength) {
+    if (
+      nationalNumber.length < rule.minLength ||
+      nationalNumber.length > rule.maxLength
+    ) {
       return { isValid: false };
     }
     if (!rule.pattern.test(nationalNumber)) {
@@ -169,7 +191,7 @@ export function validatePhoneNumber(
   // Mobile/Fixed line detection (India)
   let isMobile: boolean | undefined;
   let isFixedLine: boolean | undefined;
-  
+
   if (countryCode === "91" && nationalNumber.length === 10) {
     const firstDigit = nationalNumber[0];
     // Indian mobile numbers start with 6, 7, 8, or 9
@@ -202,4 +224,8 @@ export function validatePhoneNumber(
 
 // Export types and utilities
 export type { PhoneValidationResult, CountryCode } from "./types";
-export { getAllCountryCodes, getCountryDialCode, getCountryCodeByDialCode } from "./utils";
+export {
+  getAllCountryCodes,
+  getCountryDialCode,
+  getCountryCodeByDialCode,
+} from "./utils";
