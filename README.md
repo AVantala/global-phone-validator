@@ -21,6 +21,24 @@ npm install global-phone-validator
 yarn add global-phone-validator
 ```
 
+## Try It Online
+
+Test the package directly in your browser with RunKit:
+
+**[▶️ Try on RunKit](https://npm.runkit.com/global-phone-validator)**
+
+Or use this code snippet:
+
+```javascript
+const { validatePhoneNumber } = require("global-phone-validator");
+
+// Test various countries
+validatePhoneNumber("+91 98765 43210"); // India
+validatePhoneNumber("+1 555 123 4567"); // USA
+validatePhoneNumber("+44 20 7946 0958"); // UK
+validatePhoneNumber("+49 30 12345678"); // Germany
+```
+
 ## Usage
 
 ### Basic Validation
