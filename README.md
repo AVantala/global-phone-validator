@@ -1,13 +1,13 @@
 # global-phone-validator
 
-A comprehensive Node.js + TypeScript package for validating phone numbers worldwide. Supports **all countries** with **country-specific validation rules** for 50+ major countries. Handles international formats (+CC), 0-prefixed, and plain digits. Includes mobile/landline detection for India and returns standardized E.164 format.
+A comprehensive Node.js + TypeScript package for validating **mobile phone numbers** worldwide. Supports **all countries** with **country-specific validation rules** and **mobile prefix detection** for 50+ major countries. Handles international formats (+CC), 0-prefixed, and plain digits. Returns standardized E.164 format.
 
 ## Features
 
-- ✅ **True Global Validation**: Validates phone numbers for **all countries** with country-specific rules for 50+ major countries
+- ✅ **True Global Validation**: Validates mobile phone numbers for **all countries** with country-specific rules for 50+ major countries
 - ✅ **Country-Specific Rules**: Accurate validation for US, UK, Germany, France, Australia, Brazil, China, Japan, India, and 40+ more countries
+- ✅ **Mobile Prefix Detection**: Detects mobile numbers using country-specific prefix rules for 30+ countries
 - ✅ **Multiple Formats**: Handles international format (+CC), 0-prefixed, and plain digit formats
-- ✅ **India-Specific**: Mobile vs landline detection for Indian phone numbers
 - ✅ **Standardized Output**: Returns E.164 format (+CCNNNNNNNNN) with country information
 - ✅ **TypeScript**: Fully typed with TypeScript definitions
 - ✅ **Zero Dependencies**: No external dependencies required
@@ -38,12 +38,11 @@ const { validatePhoneNumber } = require("global-phone-validator");
 
 // Test various countries
 console.log(validatePhoneNumber("+91 98765 43210")); // India - Mobile
-console.log(validatePhoneNumber("+1 555 123 4567")); // USA
-console.log(validatePhoneNumber("+44 20 7946 0958")); // UK
+console.log(validatePhoneNumber("+1 555 123 4567")); // USA - Mobile
+console.log(validatePhoneNumber("+44 7123 456789")); // UK - Mobile
 console.log(validatePhoneNumber("+49 176 77274194")); // Germany - Mobile
-console.log(validatePhoneNumber("+49 30 12345678")); // Germany - Landline
-console.log(validatePhoneNumber("+61 2 1234 5678")); // Australia
-console.log(validatePhoneNumber("+86 138 0013 8000")); // China
+console.log(validatePhoneNumber("+61 4 1234 5678")); // Australia - Mobile
+console.log(validatePhoneNumber("+86 138 0013 8000")); // China - Mobile
 ```
 
 ### Test Locally
@@ -72,7 +71,6 @@ console.log(result1);
 //   nationalNumber: '9876543210',
 //   e164: '+919876543210',
 //   isMobile: true,
-//   isFixedLine: false,
 //   country: 'IN',
 //   countryName: 'India'
 // }
@@ -110,15 +108,18 @@ console.log(result4);
 // }
 ```
 
-### Mobile-Only Validation (India)
+### Mobile-Only Validation
 
 ```typescript
-// Only accept mobile numbers
+// Only accept mobile numbers (works for all countries with mobile prefix rules)
 const result = validatePhoneNumber("9876543210", "IN", true);
 console.log(result.isValid); // true (mobile number)
 
-const result2 = validatePhoneNumber("0123456789", "IN", true);
-console.log(result2.isValid); // false (landline number)
+const result2 = validatePhoneNumber("17677274194", "DE", true);
+console.log(result2.isValid); // true (German mobile number)
+
+const result3 = validatePhoneNumber("7123456789", "GB", true);
+console.log(result3.isValid); // true (UK mobile number)
 ```
 
 ### Get Country Codes
@@ -158,7 +159,7 @@ Validates a phone number and returns detailed information.
     - If `defaultCountry` is provided: Validates that detected country **matches** `defaultCountry` (strict mode)
     - If `defaultCountry` is **not provided**: Validates based on the **detected country** from the dial code
   - **When number doesn't have `+` prefix**: `defaultCountry` is **REQUIRED** - no default country is assumed
-- `mobileOnly` (boolean, optional): If true, only accepts mobile numbers (currently only for India). Default: false
+- `mobileOnly` (boolean, optional): If true, only accepts mobile numbers (works for all countries with mobile prefix rules). Default: false
 
 **Returns:** `PhoneValidationResult`
 
@@ -168,8 +169,7 @@ interface PhoneValidationResult {
   countryCode?: string; // e.g., '91'
   nationalNumber?: string; // e.g., '9876543210'
   e164?: string; // e.g., '+919876543210'
-  isMobile?: boolean; // true if mobile (India only)
-  isFixedLine?: boolean; // true if landline (India only)
+  isMobile?: boolean; // true if mobile number (based on country-specific prefix rules)
   country?: string; // ISO country code, e.g., 'IN'
   countryName?: string; // Full country name, e.g., 'India'
 }
@@ -261,7 +261,7 @@ The package includes **comprehensive validation rules** for **50+ major countrie
 
 #### Asia-Pacific
 
-- **India (91)**: 10 digits (mobile: 6-9, landline: 0-5) - Mobile/landline detection
+- **India (91)**: 10 digits (mobile: 6-9) - Mobile prefix detection
 - **China (86)**: 11 digits
 - **Japan (81)**: 10-11 digits
 - **South Korea (82)**: 9-10 digits
@@ -306,9 +306,9 @@ import { validatePhoneNumber } from "global-phone-validator";
 validatePhoneNumber("+91 98765 43210");
 // { isValid: true, isMobile: true, e164: '+919876543210', ... }
 
-// Valid Indian landline
-validatePhoneNumber("0123456789", "IN");
-// { isValid: true, isFixedLine: true, ... }
+// Valid German mobile number
+validatePhoneNumber("+49 17677274194");
+// { isValid: true, isMobile: true, e164: '+4917677274194', country: 'DE', ... }
 
 // Invalid number
 validatePhoneNumber("12345");
@@ -318,17 +318,13 @@ validatePhoneNumber("12345");
 validatePhoneNumber("+1 555 123 4567");
 // { isValid: true, country: 'US', e164: '+15551234567', ... }
 
-// UK number
-validatePhoneNumber("+44 20 7946 0958");
-// { isValid: true, country: 'GB', e164: '+442079460958', ... }
+// UK mobile number
+validatePhoneNumber("+44 7123 456789");
+// { isValid: true, country: 'GB', isMobile: true, e164: '+447123456789', ... }
 
-// Germany number (mobile)
+// Germany mobile number
 validatePhoneNumber("+49 17677274194");
-// { isValid: true, country: 'DE', e164: '+4917677274194', ... }
-
-// Germany number (landline)
-validatePhoneNumber("+49 30 12345678");
-// { isValid: true, country: 'DE', e164: '+493012345678', ... }
+// { isValid: true, country: 'DE', isMobile: true, e164: '+4917677274194', ... }
 
 // France number
 validatePhoneNumber("+33 1 23 45 67 89");

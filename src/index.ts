@@ -5,6 +5,7 @@ import {
   detectCountryFromPhoneNumber,
   getAllCountryCodes,
 } from "./utils";
+import { isMobileNumber } from "./mobilePrefixes";
 import countryCodes from "./CountryCodes.json";
 
 const COUNTRY_CODES = countryCodes as CountryCode[];
@@ -188,26 +189,22 @@ export function validatePhoneNumber(
     }
   }
 
-  // Mobile/Fixed line detection (India)
+  // Mobile number detection (using country-specific prefix rules)
   let isMobile: boolean | undefined;
-  let isFixedLine: boolean | undefined;
+  const mobileCheck = isMobileNumber(countryCode, nationalNumber);
 
-  if (countryCode === "91" && nationalNumber.length === 10) {
-    const firstDigit = nationalNumber[0];
-    // Indian mobile numbers start with 6, 7, 8, or 9
-    if ("6789".includes(firstDigit)) {
-      isMobile = true;
-      isFixedLine = false;
-    } else {
-      // Landline numbers typically start with 0-5
-      isMobile = false;
-      isFixedLine = true;
-    }
+  if (mobileCheck !== undefined) {
+    isMobile = mobileCheck;
   }
 
-  // If mobileOnly is true, fail non-mobile numbers
-  if (mobileOnly && countryCode === "91" && !isMobile) {
-    return { isValid: false };
+  // If mobileOnly is true, fail non-mobile numbers (works for all countries with mobile prefix rules)
+  if (mobileOnly) {
+    if (
+      isMobile === false ||
+      (isMobile === undefined && mobileCheck === undefined)
+    ) {
+      return { isValid: false };
+    }
   }
 
   return {
@@ -216,7 +213,6 @@ export function validatePhoneNumber(
     nationalNumber,
     e164: `+${countryCode}${nationalNumber}`,
     isMobile,
-    isFixedLine,
     country: detectedCountry?.code,
     countryName: detectedCountry?.name,
   };
